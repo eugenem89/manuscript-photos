@@ -1,4 +1,4 @@
-const CACHE='manuscript-photos-v13';
+const CACHE='manuscript-photos-v14';
 const FILES=['privacy.html','terms.html','capture-subjects.js','app-bootstrap.js','./','index.html','guide.html','style.css','iphone.html','capture-flow-en.js','photo-files-en.js','drive-backup-en.js','manifest-iphone.webmanifest','guide-en.html','capture-flow-he.js','photo-files.js','drive-backup.js','drive-config.json','libraries-he.json','manifest.webmanifest','icon-192.png','icon-512.png'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('manuscript-photos-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));

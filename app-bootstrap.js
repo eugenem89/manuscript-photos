@@ -1,5 +1,5 @@
 (() => {
- const query=new URLSearchParams(location.search),personal=document.documentElement.dataset.edition==='personal'||location.pathname.endsWith('/iphone.html')||query.get('edition')==='personal';
+ const query=new URLSearchParams(location.search),personal=false;
  let language=query.get('lang');try{language||=localStorage.getItem('manuscript-language-'+(personal?'personal':'friend'));}catch{}if(!['he','en'].includes(language))language=personal?'en':'he';
  globalThis.ManuscriptApp={personal,language};document.documentElement.lang=language;document.documentElement.dir=language==='he'?'rtl':'ltr';document.title=language==='he'?'צילום כתבי יד':'Manuscript Photos';
  const suffix=language==='en'?'-en':'';const load=src=>new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=reject;document.head.append(script);});
