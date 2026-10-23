@@ -21,7 +21,7 @@
  const prepare=(p,photos)=>number([...photos.filter(other=>other.id!==p.id),p]).find(other=>other.id===p.id);
  function date(p){if(/^\d{4}-\d{2}-\d{2}$/.test(p.local_date||''))return p.local_date;const d=new Date(p.device_recorded_at);if(Number.isNaN(d.getTime()))throw Error('Missing photograph date');return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');}
  const folder=p=>{const [year,month,day]=date(p).split('-');return clean(p.manuscript.repository||p.manuscript.label,80)+'_'+day+month+year;};
- const metadata=p=>{const {blob,drive_account,...record}=p;return {...record,record_format:'manuscript-photo-v1',saved_filename:filename(p)};};
+ const metadata=p=>{const {blob,drive_account,drive_synced,...record}=p;return {...record,record_format:'manuscript-photo-v1',saved_filename:filename(p)};};
  const description=p=>['ספרייה / אוסף: '+(p.manuscript.repository||''),'סימן מדף: '+(p.manuscript.shelfmark||''),'דף / עמוד: '+compact(p),'הערות: '+(p.notes||''),'תאריך הרישום במכשיר: '+p.device_recorded_at,'שם הקובץ השמור: '+filename(p),'שם הקובץ המקורי: '+p.filename].join('\n');
  globalThis.ManuscriptFiles={clean,extension,filename,metadata,description,prepare,number,folder,date,compact,base};
 })();

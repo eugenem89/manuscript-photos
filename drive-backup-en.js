@@ -4,7 +4,7 @@
  const quote=value=>String(value).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
  const hash=async data=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',data))].map(b=>b.toString(16).padStart(2,'0')).join('');
  class ManuscriptDrive {
-  constructor({photoOnly=false,clientId='',loadState=async()=>({ids:{}}),saveState=async()=>{},progress=()=>{}}={}){this.photoOnly=photoOnly;this.clientId=clientId;this.loadState=loadState;this.saveState=saveState;this.progress=progress;this.accessToken='';this.expiresAt=0;this.account='';this.state={ids:{}};this.tokenClient=null;}
+  constructor({photoOnly=false,clientId='',loadState=async()=>({ids:{}}),saveState=async()=>{},progress=()=>{},markSynced=async()=>{}}={}){this.photoOnly=photoOnly;this.clientId=clientId;this.loadState=loadState;this.saveState=saveState;this.progress=progress;this.markSynced=markSynced;this.accessToken='';this.expiresAt=0;this.account='';this.state={ids:{}};this.tokenClient=null;}
   get connected(){return !!this.accessToken&&Date.now()<this.expiresAt;}
   prepare(){if(!this.clientId)throw Error('Google Drive has not been activated for this app yet. Photos stay on your phone.');if(!globalThis.google?.accounts?.oauth2)throw Error('Cannot open Google right now. Check your connection and try again.');if(!this.tokenClient)this.tokenClient=google.accounts.oauth2.initTokenClient({client_id:this.clientId,scope:SCOPE,callback:()=>{},error_callback:()=>this.connectionReject?.(Error('The connection window closed. Tap Connect Google Drive again.'))});}
   connect({selectAccount=false}={}){
@@ -45,14 +45,14 @@
   async root(){return this.folder('כתבי יד','root');}
   async backup(manuscript,photos){
    if(!this.connected)throw Error('Tap Connect Google Drive to back up your photos.');
-   const files=globalThis.ManuscriptFiles,root=await this.root(),folders=new Map(),ordered=files.number(photos);let lastFolder=root;
-   for(let index=0;index<ordered.length;index++){
-    const photo=await this.jpeg(ordered[index]),folderName=files.folder(photo),folderKey='library-date-'+(await hash(new TextEncoder().encode(folderName))).slice(0,32);
+   const files=globalThis.ManuscriptFiles,root=await this.root(),folders=new Map(),ordered=files.number(photos);let lastFolder=root;const signature=photo=>{const {drive_synced,...record}=photo;return JSON.stringify([this.account,files.folder(record),files.filename(record),record.blob.size,this.photoOnly?String(record.notes||''):files.metadata(record)]);},waiting=ordered.filter(photo=>photo.drive_synced!==signature(photo));
+   for(let index=0;index<waiting.length;index++){
+    const synced=signature(waiting[index]),photo=await this.jpeg(waiting[index]),folderName=files.folder(photo),folderKey='library-date-'+(await hash(new TextEncoder().encode(folderName))).slice(0,32);
     if(!folders.has(folderKey))folders.set(folderKey,await this.folder(folderName,folderKey,root));
-    const folder=folders.get(folderKey),name=files.filename(photo),stem=name.replace(/\.[^.]+$/,'');lastFolder=folder;this.progress(index+1,ordered.length);
+    const folder=folders.get(folderKey),name=files.filename(photo),stem=name.replace(/\.[^.]+$/,'');lastFolder=folder;this.progress(index+1,waiting.length);
     await this.saveBlob(name,photo.blob,folder,'image-'+photo.id);
     if(!this.photoOnly||String(photo.notes||'').trim())await this.saveBlob(stem+'.txt',new Blob([this.photoOnly?photo.notes:files.description(photo)],{type:'text/plain;charset=utf-8'}),folder,'description-'+photo.id);
-    if(!this.photoOnly)await this.saveBlob(stem+'.json',new Blob([JSON.stringify(files.metadata(photo),null,2)],{type:'application/json'}),folder,'metadata-'+photo.id);
+    if(!this.photoOnly)await this.saveBlob(stem+'.json',new Blob([JSON.stringify(files.metadata(photo),null,2)],{type:'application/json'}),folder,'metadata-'+photo.id);await this.markSynced(photo.id,synced);
    }
    return {rootId:root,folderId:lastFolder,url:'https://drive.google.com/drive/folders/'+lastFolder,account:this.account,photos:ordered.length};
   }
