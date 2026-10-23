@@ -41,6 +41,10 @@ No paid backend or central photograph storage is required by this design. GitHub
 
 A real iPhone/Android capture-to-Drive test remains a release check; interface and upload behavior have been tested with simulated Google responses. This is not an independent security audit.
 
+### Building
+
+Edit the Hebrew files (capture-flow-he.js, photo-files.js, drive-backup.js) and manifest.webmanifest, then run `python tools/build_public.py` to regenerate their English siblings. The same command checks that the site is still the standard edition only: no personal mode, watermark workflow or private-edition files, a Content-Security-Policy on both entry pages, the drive.file scope only, and unchanged IndexedDB names. `python tools/build_public.py --check` runs the checks without writing, and GitHub runs it on every push and pull request. Do not copy files from the private development source or its build (which writes a personal-edition iphone.html) into this repository.
+
 When changing site addresses, finish queued uploads on the old address first. Browser-local photographs and profiles do not transfer automatically between addresses.
 
 ## בעברית
