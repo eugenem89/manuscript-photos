@@ -1,13 +1,13 @@
 # Manuscript Photos · צילום כתבי יד
 
-A free, standalone web app for photographing manuscripts on iPhone and Android. Both editions offer Hebrew and English. Add the website to your phone’s home screen; no app store, dashboard, or Tailscale installation is needed.
+A free, standalone web app for photographing manuscripts on iPhone and Android. The app offers Hebrew and English on both phones. Add the website to your phone’s home screen; no app store, dashboard, or Tailscale installation is needed.
 
 ## Open the app
 
-- [Personal edition](https://eugenem89.github.io/manuscript-photos/iphone.html) — English initially; includes the optional watermark marker and descriptive metadata for later manual import.
-- [Photo-only edition](https://eugenem89.github.io/manuscript-photos/index.html) — Hebrew initially; JPG photographs, plus a text file only when notes are entered.
+- [iPhone](https://eugenem89.github.io/manuscript-photos/iphone.html) — open in Safari, then Share → Add to Home Screen.
+- [Android](https://eugenem89.github.io/manuscript-photos/index.html) — open in Chrome, then Add to Home screen or Install app.
 
-The edition is a choice of features, not a restriction to a particular phone: both work on iPhone and Android. On iPhone, open in Safari and choose Share → Add to Home Screen. On Android, open in Chrome and choose Add to Home screen or Install app.
+Both links open the same bilingual app: choose עברית or English using the language selector. Photos are saved as JPG, with a text file only when notes are entered. There is no separate personal edition, watermark workflow, or dashboard integration in the public app.
 
 ## Capture and save
 
@@ -41,10 +41,14 @@ No paid backend or central photograph storage is required by this design. GitHub
 
 A real iPhone/Android capture-to-Drive test remains a release check; interface and upload behavior have been tested with simulated Google responses. This is not an independent security audit.
 
+### Building
+
+Edit the Hebrew files (capture-flow-he.js, photo-files.js, drive-backup.js) and manifest.webmanifest, then run `python tools/build_public.py` to regenerate their English siblings. The same command checks that the site is still the standard edition only: no personal mode, watermark workflow or private-edition files, a Content-Security-Policy on both entry pages, the drive.file scope only, and unchanged IndexedDB names. `python tools/build_public.py --check` runs the checks without writing, and GitHub runs it on every push and pull request. Do not copy files from the private development source or its build (which writes a personal-edition iphone.html) into this repository.
+
 When changing site addresses, finish queued uploads on the old address first. Browser-local photographs and profiles do not transfer automatically between addresses.
 
 ## בעברית
 
 אפליקציית צילום כתבי יד פועלת באייפון ובאנדרואיד, בעברית ובאנגלית. פותחים את הקישור ומוסיפים למסך הבית. מתחברים לחשבון Google Drive האישי, ממלאים ספרייה וסימן מדף, בוחרים דף וצד ומצלמים. אפשר לצלם גם דפי מגן, פתיחת ספר, כריכה קדמית, שדרה וכריכה אחורית.
 
-התמונות נשמרות בתיקיית **כתבי יד** בחשבון האישי. בגרסה המצומצמת נשמרים קובצי JPG בלבד, וקובץ טקסט נוסף רק אם נכתבו הערות. יש לבדוק שהגיבוי הושלם לפני מחיקת נתוני האתר. לפניות: manuscriptphotos.support@gmail.com.
+התמונות נשמרות בתיקיית **כתבי יד** בחשבון האישי. באפליקציה נשמרים קובצי JPG בלבד, וקובץ טקסט נוסף רק אם נכתבו הערות. יש לבדוק שהגיבוי הושלם לפני מחיקת נתוני האתר. לפניות: manuscriptphotos.support@gmail.com.
