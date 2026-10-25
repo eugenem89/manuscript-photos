@@ -97,6 +97,16 @@ extra=[
 ]
 
 
+pairs += [
+('צילום סימן מים','Watermark photo'),
+('תחילה צלמו עם תאורה מאחורי הדף. אחר כך צלמו את אותו דף ללא תאורה אחורית, באותו מיקום ובאותה זווית.','First photograph with light behind the page. Then photograph the same page without backlighting, keeping the position and angle unchanged.'),
+('צילום אותו דף ללא תאורה אחורית','Photograph the same page without backlighting'),
+('פרוטוקול צילום סימני מים — Northwestern','Watermark photography protocol — Northwestern'),
+('התצלום הבא: אותו דף ללא תאורה אחורית. שמרו על אותו מיקום וזווית ועל תאורה רגילה מלפנים.','Next photo: the same page without backlighting. Keep the position and angle unchanged and use normal light from the front.'),
+('נשמר תצלום הייחוס ללא תאורה אחורית, מקושר לתצלום סימן המים.','The reference photo without backlighting is saved and linked to the watermark photo.'),
+('התצלום הבא צריך להיות של אותו דף ללא תאורה אחורית. שמרו על אותו מיקום וזווית. שני התצלומים יישמרו בנפרד מתצלומי כתב היד.','The next photo should show the same page without backlighting. Keep the position and angle unchanged. Both photos will be stored separately from manuscript photos.'),
+]
+
 def read(name):
     with open(root / name, encoding='utf-8') as f:
         return f.read()
@@ -134,14 +144,14 @@ def encode(text):
 
 
 # Everything the public site may contain. Private-edition files (appearance.js,
-# vendor/jszip, index-connected.html, previews, watermark tools, notes) are refused.
+# vendor/jszip, index-connected.html, previews and private notes) are refused.
 ALLOWED = {
     '.gitignore', '.nojekyll', 'README.md', 'app-bootstrap.js', 'capture-flow-en.js', 'capture-flow-he.js',
     'capture-subjects.js', 'demo-page.png', 'drive-backup-en.js', 'drive-backup.js', 'drive-config.json',
     'guide-en.html', 'guide.html', 'icon-192.png', 'icon-512.png', 'index.html', 'iphone.html',
     'libraries-he.json', 'manifest-iphone.webmanifest', 'manifest.webmanifest', 'photo-files-en.js',
     'photo-files.js', 'privacy.html', 'style.css', 'sw.js', 'terms.html',
-    'tools/build_public.py', '.github/workflows/public-check.yml',
+    'tools/build_public.py', 'tools/watermark.test.cjs', 'watermark-protocol.js', '.github/workflows/public-check.yml',
 }
 IGNORED = {'.git', '__pycache__', '.DS_Store', 'Thumbs.db'}
 
@@ -224,7 +234,7 @@ def check(generated):
 
     for name in ['guide.html', 'guide-en.html', 'privacy.html', 'terms.html']:
         text = read(name).lower()
-        for word in ['watermark', 'סימן מים', 'personal edition', 'friend edition', 'tailscale', 'dashboard import']:
+        for word in ['personal edition', 'friend edition', 'tailscale', 'dashboard import']:
             if word in text:
                 fail(f'{name}: mentions {word!r}, which the public app does not have')
     return errors

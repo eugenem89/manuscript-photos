@@ -45,14 +45,14 @@
   async root(){return this.folder('כתבי יד','root');}
   async backup(manuscript,photos){
    if(!this.connected)throw Error('Tap Connect Google Drive to back up your photos.');
-   const files=globalThis.ManuscriptFiles,root=await this.root(),folders=new Map(),ordered=files.number(photos);let lastFolder=root;const signature=photo=>{const {drive_synced,...record}=photo;return JSON.stringify([this.account,files.folder(record),files.filename(record),record.blob.size,this.photoOnly?String(record.notes||''):files.metadata(record)]);},waiting=ordered.filter(photo=>photo.drive_synced!==signature(photo));
+   const files=globalThis.ManuscriptFiles,root=await this.root(),folders=new Map(),ordered=files.number(photos);let lastFolder=root;const signature=photo=>{const {drive_synced,...record}=photo;return JSON.stringify([this.account,record.is_watermark?[files.folder(record),record.manuscript.shelfmark,'watermarks',record.watermark_pair_id,record.illumination]:files.folder(record),files.filename(record),record.blob.size,this.photoOnly?String(record.notes||''):files.metadata(record)]);},waiting=ordered.filter(photo=>photo.drive_synced!==signature(photo));
    for(let index=0;index<waiting.length;index++){
     const synced=signature(waiting[index]),photo=await this.jpeg(waiting[index]),folderName=files.folder(photo),folderKey='library-date-'+(await hash(new TextEncoder().encode(folderName))).slice(0,32);
     if(!folders.has(folderKey))folders.set(folderKey,await this.folder(folderName,folderKey,root));
-    const folder=folders.get(folderKey),name=files.filename(photo),stem=name.replace(/\.[^.]+$/,'');lastFolder=folder;this.progress(index+1,waiting.length);
+    let folder=folders.get(folderKey);if(photo.is_watermark){const shelfKey='shelfmark-'+(await hash(new TextEncoder().encode(photo.manuscript.shelfmark))).slice(0,32),cacheKey=folderKey+':'+shelfKey;if(!folders.has(cacheKey)){const shelf=await this.folder(files.clean(photo.manuscript.shelfmark),shelfKey,folder);folders.set(cacheKey,await this.folder('Watermarks','watermarks',shelf));}folder=folders.get(cacheKey);}const name=files.filename(photo),stem=name.replace(/\.[^.]+$/,'');lastFolder=folder;this.progress(index+1,waiting.length);
     await this.saveBlob(name,photo.blob,folder,'image-'+photo.id);
     if(!this.photoOnly||String(photo.notes||'').trim())await this.saveBlob(stem+'.txt',new Blob([this.photoOnly?photo.notes:files.description(photo)],{type:'text/plain;charset=utf-8'}),folder,'description-'+photo.id);
-    if(!this.photoOnly)await this.saveBlob(stem+'.json',new Blob([JSON.stringify(files.metadata(photo),null,2)],{type:'application/json'}),folder,'metadata-'+photo.id);await this.markSynced(photo.id,synced);
+    if(!this.photoOnly||photo.is_watermark)await this.saveBlob(stem+'.json',new Blob([JSON.stringify(files.metadata(photo),null,2)],{type:'application/json'}),folder,'metadata-'+photo.id);await this.markSynced(photo.id,synced);
    }
    return {rootId:root,folderId:lastFolder,url:'https://drive.google.com/drive/folders/'+lastFolder,account:this.account,photos:ordered.length};
   }

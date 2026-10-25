@@ -43,7 +43,7 @@ A real iPhone/Android capture-to-Drive test remains a release check; interface a
 
 ### Building
 
-Edit the Hebrew files (capture-flow-he.js, photo-files.js, drive-backup.js) and manifest.webmanifest, then run `python tools/build_public.py` to regenerate their English siblings. The same command checks that the site is still the standard edition only: no personal mode, watermark workflow or private-edition files, a Content-Security-Policy on both entry pages, the drive.file scope only, and unchanged IndexedDB names. `python tools/build_public.py --check` runs the checks without writing, and GitHub runs it on every push and pull request. Do not copy files from the private development source or its build (which writes a personal-edition iphone.html) into this repository.
+Edit the Hebrew files (capture-flow-he.js, photo-files.js, drive-backup.js) and manifest.webmanifest, then run `python tools/build_public.py` to regenerate their English siblings. The same command checks that the site is still the standard edition only: no personal mode or private-edition files, a Content-Security-Policy on both entry pages, the drive.file scope only, and unchanged IndexedDB names. `python tools/build_public.py --check` runs the checks without writing, and GitHub runs it on every push and pull request. Do not copy files from the private development source or its build (which writes a personal-edition iphone.html) into this repository.
 
 When changing site addresses, finish queued uploads on the old address first. Browser-local photographs and profiles do not transfer automatically between addresses.
 
@@ -52,3 +52,16 @@ When changing site addresses, finish queued uploads on the old address first. Br
 אפליקציית צילום כתבי יד פועלת באייפון ובאנדרואיד, בעברית ובאנגלית. פותחים את הקישור ומוסיפים למסך הבית. מתחברים לחשבון Google Drive האישי, ממלאים ספרייה וסימן מדף, בוחרים דף וצד ומצלמים. אפשר לצלם גם דפי מגן, פתיחת ספר, כריכה קדמית, שדרה וכריכה אחורית.
 
 התמונות נשמרות בתיקיית **כתבי יד** בחשבון האישי. באפליקציה נשמרים קובצי JPG בלבד, וקובץ טקסט נוסף רק אם נכתבו הערות. יש לבדוק שהגיבוי הושלם לפני מחיקת נתוני האתר. לפניות: manuscriptphotos.support@gmail.com.
+
+
+## Watermark paired photographs
+
+In either language, select **Watermark photo** before taking a backlit photograph. The review screen reminds you to photograph the same page without backlighting, keeping the camera position, angle, and framing unchanged. Use its dedicated button to retain the exact page identification. Canceling the camera keeps the pending reference available; selecting a different page clears it. The marker can also be applied in review if you forgot it before capture.
+
+Both images are saved separately from ordinary manuscript photos under **כתבי יד / Library_ddmmyyyy / Shelfmark / Watermarks**. Each includes a JSON sidecar with manuscript/page identification, shared pair ID and lighting (`transmitted` or `reflected`). Originals remain on the device; standard Drive backup still creates JPG copies. Existing ordinary photo folders remain unchanged. No image subtraction or enhancement is performed by this capture protocol.
+
+Protocol reference: [Northwestern — Isolating Watermarks in Antique Paper](https://scienceforart.northwestern.edu/projects-proposals/projects/watermark-photography.html).
+
+בדקו **צילום סימן מים** לפני צילום בתאורה אחורית. לאחר מכן לחצו **צילום אותו דף ללא תאורה אחורית** ושמרו על אותו מיקום, זווית ומסגור. שני התצלומים יישמרו בתיקיית **Watermarks** בתוך תיקיית סימן המדף, עם קובצי זיהוי המקשרים ביניהם. האפליקציה אינה מבצעת עיבוד תמונה בשלב הצילום.
+
+Validation: `node tools/watermark.test.cjs` and `python tools/build_public.py --check`.
